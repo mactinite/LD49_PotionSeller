@@ -45,7 +45,7 @@ public class DrawCircle : MonoBehaviour
         float angle = 0;
 
 
-        for (int i = 0; i <= (segments); i++)
+        for (int i = 0; i < (segments); i++)
         {
             x = Mathf.Sin(angle) * radius;
             y = Mathf.Cos(angle) * radius;

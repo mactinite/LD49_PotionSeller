@@ -5,7 +5,7 @@ using ElRaccoone.Tweens;
 using ElRaccoone.Tweens.Core;
 using UnityEngine.Events;
 
-public class GrindReagents : MonoBehaviour
+public class GrindReagents : MiniGame
 {
 
     public GameObject pestleSprite;
@@ -23,9 +23,6 @@ public class GrindReagents : MonoBehaviour
 
     public float goalValue = 1f;
     public float explosionValue = 1f;
-
-    public UnityEvent OnSuccess = new UnityEvent();
-    public UnityEvent OnFail = new UnityEvent();
     
     bool dragging = false;
     Tween<float> pestlePosXTween;
@@ -35,7 +32,6 @@ public class GrindReagents : MonoBehaviour
 
     private float angleVelocity;
     private float angle = 0;
-    private float lastFrameVelocity;
     private float speedVelocity;
 
     private float completionValue = 0;
@@ -53,13 +49,24 @@ public class GrindReagents : MonoBehaviour
 
         pestlePosXTween = pestleSprite.transform.TweenLocalPositionX(-0.13f, 1f).SetPingPong().SetInfinite().SetTime(0).SetPaused(true);
         pestleWobbleTween = pestleSprite.transform.TweenLocalRotationZ(35, 1).SetPingPong().SetInfinite().SetTime(0).SetPaused(true);
+        circleElement.gameObject.SetActive(false);
+        handle.gameObject.SetActive(false);
+        feedbackText.gameObject.SetActive(false);
+    }
+
+    public override void StartGame()
+    {
+        base.StartGame();
+        circleElement.gameObject.SetActive(true);
+        handle.gameObject.SetActive(true);
+        feedbackText.gameObject.SetActive(true);
+
     }
 
     public void DragStart(GameObject clicked)
     {
         if (clicked == handle.gameObject)
         {
-            Debug.Log("Grabbed the handle");
             dragging = true;
             pestlePosXTween.SetPaused(false);
             pestleWobbleTween.SetPaused(false);
@@ -71,9 +78,7 @@ public class GrindReagents : MonoBehaviour
     {
         if (dragging)
         {
-            Debug.Log("Dropped the handle");
             dragging = false;
-
             pestlePosXTween.SetPaused(true);
             pestleWobbleTween.SetPaused(true);
         }
