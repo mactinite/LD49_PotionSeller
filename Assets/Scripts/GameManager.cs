@@ -10,11 +10,14 @@ public class GameManager : StateMachine<GameManager>
 
     public float CurrentTime { get => currentTime; set => currentTime = value; }
     public PersonaGenerator PersonaGenerator { get => personaGenerator; set => personaGenerator = value; }
+    public int CurrentDay { get => currentDay; set => currentDay = value; }
+    public ShopManager ShopManager { get => shopManager; set => shopManager = value; }
 
     public DefaultState defaultState;
 
-    public GameObject textBox;
-    public TMPro.TMP_Text stepText;
+    public GameObject dialogueBox;
+    public TMPro.TMP_Text dialogueText;
+
 
     public Tool[] tools;
     public Tool currentTool;
@@ -36,13 +39,18 @@ public class GameManager : StateMachine<GameManager>
 
     public GameObject OrdersLayoutGroup;
 
+    private int currentDay = 0;
+    public TMPro.TMP_Text dayCounter;
+
+
+
     private void Start()
     {
         // create instances of the states
         defaultState = new DefaultState(this);
-        shopManager = GetComponent<ShopManager>();
+        ShopManager = GetComponent<ShopManager>();
         personaGenerator = GetComponent<PersonaGenerator>();
-
+        dialogueBox.SetActive(false);
         foreach (var tool in tools)
         {
             tool.OnDroppedOnWorkspace.AddListener(ToolDroppedOnWorkspace);
@@ -69,10 +77,10 @@ public class GameManager : StateMachine<GameManager>
 
     public void PickOrder(int orderIndex)
     {
-        if (!shopManager.isPreppingPotion)
+        if (!ShopManager.isPreppingPotion)
         {
             Recipe order = Orders[orderIndex];
-            shopManager.PreparePotion(order);
+            ShopManager.PreparePotion(order);
             Orders.RemoveAt(orderIndex);
             RedrawOrdersList();
         }
@@ -84,22 +92,23 @@ public class GameManager : StateMachine<GameManager>
         int extraChildren = OrdersLayoutGroup.transform.childCount - Orders.Count;
         if (extraChildren > 0)
         {
-            for(int i = 0; i < extraChildren; i++)
+            for (int i = 0; i < extraChildren; i++)
             {
                 Destroy(OrdersLayoutGroup.transform.GetChild((OrdersLayoutGroup.transform.childCount - 1) - i).gameObject);
             }
         }
 
 
-        for(int i = 0; i < Orders.Count; i++)
+        for (int i = 0; i < Orders.Count; i++)
         {
-            if(i < OrdersLayoutGroup.transform.childCount)
+            if (i < OrdersLayoutGroup.transform.childCount)
             {
                 GameObject existingOrderPrefab = OrdersLayoutGroup.transform.GetChild(i).gameObject;
                 existingOrderPrefab.GetComponent<Button>().onClick.RemoveAllListeners();
                 existingOrderPrefab.GetComponent<Button>().onClick.AddListener(WrappedButtonCallback(i));
                 existingOrderPrefab.GetComponentInChildren<TMPro.TMP_Text>().text = $"{Orders[i].name}";
-            } else
+            }
+            else
             {
                 GameObject newOrderPrefab = Instantiate(OderUIPrefab, OrdersLayoutGroup.transform);
                 newOrderPrefab.GetComponent<Button>().onClick.RemoveAllListeners();
@@ -108,7 +117,7 @@ public class GameManager : StateMachine<GameManager>
             }
         }
 
-        
+
     }
 
     public UnityAction WrappedButtonCallback(int i)
@@ -131,6 +140,26 @@ public class DefaultState : State<GameManager>
 }
 
 
+public class GameOverState : State<GameManager>
+{
+    public GameOverState(GameManager stateMachine) : base(stateMachine)
+    {
+
+    }
+
+    public override IEnumerator Start()
+    {
+        yield return new WaitForSeconds(2f);
+        FlybyText.SpawnText("Game Over");
+
+        // show game over screen, 
+        // offer to restart
+        // show score & stats
+        yield return null;
+    }
+}
+
+
 public class OpeningState : State<GameManager>
 {
     public OpeningState(GameManager stateMachine) : base(stateMachine)
@@ -145,8 +174,22 @@ public class OpeningState : State<GameManager>
 
     public override IEnumerator Start()
     {
-        StateMachine.stepText.text = $"Good morning! ready for some work?";
+        FlybyText.SpawnText("Good Morning!");
         yield return new WaitForSeconds(3f);
+        FlybyText.SpawnText("Start Shift!");
+        yield return new WaitForSeconds(3f);
+        StateMachine.ShopManager.Gold -= StateMachine.ShopManager.upkeepCost;
+
+        if(StateMachine.ShopManager.Gold < 0)
+        {
+            // BANKRUPT GAME OVER
+            FlybyText.SpawnText("BANKRUPT!");
+            StateMachine.SetState(new GameOverState(StateMachine));
+
+        }
+
+        StateMachine.CurrentDay++;
+        StateMachine.dayCounter.text = $"Day {StateMachine.CurrentDay}";
         StateMachine.CurrentTime = 0;
         StateMachine.SetState(new OpenState(StateMachine));
     }
@@ -166,11 +209,16 @@ public class OpenState : State<GameManager>
     public override IEnumerator Start()
     {
         StateMachine.isOpen = true;
-        while(StateMachine.CurrentTime < StateMachine.shiftLength)
+        while (StateMachine.CurrentTime < StateMachine.shiftLength)
         {
 
             yield return NewCustomer();
             yield return new WaitForSeconds(UnityEngine.Random.Range(5, 10));
+        }
+        // wait for potion in progress to be finished to be nice..
+        while (StateMachine.ShopManager.isPreppingPotion)
+        {
+            yield return null;
         }
 
         StateMachine.SetState(new ClosingState(StateMachine));
@@ -187,10 +235,11 @@ public class OpenState : State<GameManager>
         yield return null;
         // get random recipe and add it to the queue
         var recipe = StateMachine.orderGenerator.GetOrder(StateMachine.tools);
-
-        StateMachine.stepText.text = $"Hello, I'd like a {recipe.name}. Please hurry I'm desperate.";
+        StateMachine.dialogueBox.SetActive(true);
+        StateMachine.dialogueText.text = $"Hello, I'd like a {recipe.name}. Please hurry I'm desperate.";
         yield return new WaitForSeconds(2f);
-        StateMachine.stepText.text = "";
+        StateMachine.dialogueBox.SetActive(false);
+        StateMachine.dialogueText.text = "";
         StateMachine.Orders.Add(recipe);
         StateMachine.RedrawOrdersList();
 
@@ -209,16 +258,21 @@ public class ClosingState : State<GameManager>
     {
 
         yield return new WaitForSeconds(3f);
-        StateMachine.SetState(new OpeningState(StateMachine));
     }
 
     public override IEnumerator Start()
     {
-        StateMachine.stepText.text = $"Phew! Good hustle!";
+        StateMachine.Orders.Clear();
+        StateMachine.RedrawOrdersList();
+
+
+        FlybyText.SpawnText("End Shift!");
         yield return new WaitForSeconds(3f);
 
-        StateMachine.stepText.text = $"Buy Upgrades?";
+        FlybyText.SpawnText("Zzzzz");
+        yield return new WaitForSeconds(3f);
 
+        StateMachine.SetState(new OpeningState(StateMachine));
         // TODO: UPGRADES
         // while(upgrading){}
     }

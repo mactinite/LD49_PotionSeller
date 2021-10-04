@@ -35,21 +35,20 @@ public class Tool : MonoBehaviour
     {
         if (dragging)
         {
-            returnTween = transform.TweenPosition(originalPosition, 1f);
+            returnTween = transform.TweenPosition(originalPosition, 0.5f).SetEaseBounceOut();
             dragging = false;
 
             // check if inside workspace and report
             if (onWorkspace)
             {
                 OnDroppedOnWorkspace.Invoke(this);
-                returnTween.Cancel();
             }
         }
     }
 
     public void Return()
     {
-        returnTween = transform.TweenPosition(originalPosition, 1f);
+        returnTween = transform.TweenPosition(originalPosition, 0.5f).SetEaseBounceOut();
         dragging = false;
     }
 

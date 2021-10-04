@@ -41,7 +41,7 @@ public class GrindReagents : MiniGame
     // Start is called before the first frame update
     void Start()
     {
-        circleElement.radius = circleRadius;
+        circleElement.radius = circleRadius * 2;
         handle.transform.localPosition = new Vector2(Mathf.Sin(angle * Mathf.Deg2Rad) * circleRadius, Mathf.Cos(angle * Mathf.Deg2Rad) * circleRadius);
 
         MouseInteraction.Instance.OnClick.AddListener(DragStart);
@@ -89,7 +89,7 @@ public class GrindReagents : MiniGame
     {
         if (dragging)
         {
-            Vector2 mouseDirection = MouseInteraction.Instance.mouseWorldPosition - (Vector2)transform.position;
+            Vector2 mouseDirection = MouseInteraction.Instance.mouseWorldPosition - (Vector2)circleElement.gameObject.transform.position;
             mouseDirection.Normalize();
 
             angle = Mathf.SmoothDampAngle(angle, -Vector2.SignedAngle(Vector3.up, mouseDirection), ref angleVelocity, 0.01f, maxSpeed);

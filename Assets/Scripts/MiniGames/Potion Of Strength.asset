@@ -14,8 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   steps:
   - verb: Boil
-    ingredient: Newts Toes
+    ingredient: Cows Milk
     requiredTool: {fileID: 1452708620793240326, guid: 2e35a01f65978fb4b91a2c90fbb1fe07, type: 3}
-  - verb: Grind
-    ingredient: Giants Deltoid
-    requiredTool: {fileID: 1663615941, guid: 1728b6567ad158748a5622b89ecb9226, type: 3}
+  - verb: Droplet
+    ingredient: Milkthistle
+    requiredTool: {fileID: 874164382354814093, guid: 00783e68ad165af4dacbf4c8e4796506, type: 3}

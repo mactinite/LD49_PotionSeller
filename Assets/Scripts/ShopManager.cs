@@ -1,30 +1,46 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
+using ElRaccoone.Tweens;
 public class ShopManager : StateMachine<ShopManager>
 {
 
-    public TMPro.TMP_Text stepText;
     public GameManager gameManager;
     public SelectOrderState selectOrderState;
 
     public bool isPreppingPotion = false;
     public CurrentOrderUI orderUI;
+
+    public int upkeepCost = 500;
+
+    private int gold = 750;
+    public TMPro.TMP_Text goldCounter;
+
+    public int Gold
+    {
+
+        get => gold;
+        set
+        {
+            gold = value;
+            goldCounter.text = $"${gold}";
+            goldCounter.transform.TweenLocalScale(Vector3.one * 1.5f, 0.3f).SetPingPong().SetEaseBounceIn();
+        }
+
+    }
+
     // Start is called before the first frame update
     void Start()
     {
         gameManager = GetComponent<GameManager>();
         selectOrderState = new SelectOrderState(this);
-
+        SetState(selectOrderState);
     }
 
     public void PreparePotion(Recipe recipe)
     {
         SetState(new PreparingPotionState(recipe, this));
     }
-
-
 
 }
 
@@ -63,7 +79,7 @@ public class PreparingPotionState : State<ShopManager>
     public override IEnumerator End()
     {
 
-        
+
         return base.End();
     }
 
@@ -94,13 +110,13 @@ public class PreparingPotionState : State<ShopManager>
         if (failed)
         {
             // Failed the recipe, tell the player some how
-            StateMachine.stepText.text = $"Failed...";
         }
         else
         {
             // Success! tell the player some how
-            StateMachine.stepText.text = $"Success!";
             StateMachine.orderUI.stepsText.text = GetStepsText();
+            StateMachine.Gold += currentRecipe.reward;
+
             yield return new WaitForSeconds(1f);
         }
 
@@ -113,13 +129,15 @@ public class PreparingPotionState : State<ShopManager>
         string stepsText = "";
         for (int i = 0; i < currentRecipe.steps.Count; i++)
         {
-            if(i < currentStep)
+            if (i < currentStep)
             {
-                stepsText += $"<s>{currentRecipe.steps[i].verb} {currentRecipe.steps[i].ingredient}</s> \n";
-            } else if(i > currentStep)
+                stepsText += $"X {currentRecipe.steps[i].verb} {currentRecipe.steps[i].ingredient} \n";
+            }
+            else if (i > currentStep)
             {
                 stepsText += $"{currentRecipe.steps[i].verb} {currentRecipe.steps[i].ingredient} \n";
-            } else
+            }
+            else
             {
                 stepsText += $"<b>{currentRecipe.steps[i].verb} {currentRecipe.steps[i].ingredient}</b> \n";
 
@@ -131,7 +149,6 @@ public class PreparingPotionState : State<ShopManager>
 
     private IEnumerator WaitForRightTool(Step step)
     {
-        StateMachine.stepText.text = $"{step.verb} some {step.ingredient}";
 
         while (gameManager.currentTool == null || gameManager.currentTool.ToolID != step.requiredTool.ToolID)
         {

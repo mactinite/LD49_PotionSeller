@@ -7,4 +7,5 @@ using UnityEngine;
 public class Recipe : ScriptableObject
 {
     public List<Step> steps;
+    public int reward = 250;
 }

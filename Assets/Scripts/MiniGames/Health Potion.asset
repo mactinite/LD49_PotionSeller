@@ -13,9 +13,9 @@ MonoBehaviour:
   m_Name: Health Potion
   m_EditorClassIdentifier: 
   steps:
-  - verb: Boil
-    ingredient: Deer Blood
-    requiredTool: {fileID: 1452708620793240326, guid: 2e35a01f65978fb4b91a2c90fbb1fe07, type: 3}
   - verb: Grind
     ingredient: Life Wheat
     requiredTool: {fileID: 1663615941, guid: 1728b6567ad158748a5622b89ecb9226, type: 3}
+  - verb: Boil
+    ingredient: Blood Leeches
+    requiredTool: {fileID: 1452708620793240326, guid: 2e35a01f65978fb4b91a2c90fbb1fe07, type: 3}
