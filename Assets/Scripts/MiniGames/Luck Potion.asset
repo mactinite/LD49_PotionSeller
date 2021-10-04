@@ -10,10 +10,10 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a9257e1acc0ded840b8e4c728d3faafe, type: 3}
-  m_Name: Health Potion
+  m_Name: Luck Potion
   m_EditorClassIdentifier: 
   steps:
-  - verb: Grind
-    ingredient: Life Wheat
-    requiredTool: {fileID: 1663615941, guid: 1728b6567ad158748a5622b89ecb9226, type: 3}
-  reward: 25
+  - verb: Boil
+    ingredient: Pyrite
+    requiredTool: {fileID: 1452708620793240326, guid: 2e35a01f65978fb4b91a2c90fbb1fe07, type: 3}
+  reward: 50

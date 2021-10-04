@@ -15,18 +15,25 @@ public class ShopManager : StateMachine<ShopManager>
 
     private int gold = 750;
     public TMPro.TMP_Text goldCounter;
-
-    public int Gold
+    private static ShopManager instance;
+    
+    public static int Gold
     {
 
-        get => gold;
+        get => instance.gold;
         set
         {
-            gold = value;
-            goldCounter.text = $"${gold}";
-            goldCounter.transform.TweenLocalScale(Vector3.one * 1.5f, 0.3f).SetPingPong().SetEaseBounceIn();
+            instance.gold = value;
+            instance.goldCounter.text = $"${instance.gold}";
+            instance.goldCounter.transform.TweenLocalScale(Vector3.one * 1.5f, 0.3f).SetPingPong().SetEaseBounceIn();
         }
 
+    }
+
+    private void Awake()
+    {
+        if(instance == null)
+            instance = this;
     }
 
     // Start is called before the first frame update
@@ -115,7 +122,7 @@ public class PreparingPotionState : State<ShopManager>
         {
             // Success! tell the player some how
             StateMachine.orderUI.stepsText.text = GetStepsText();
-            StateMachine.Gold += currentRecipe.reward;
+            ShopManager.Gold += currentRecipe.reward;
 
             yield return new WaitForSeconds(1f);
         }
@@ -131,7 +138,7 @@ public class PreparingPotionState : State<ShopManager>
         {
             if (i < currentStep)
             {
-                stepsText += $"X {currentRecipe.steps[i].verb} {currentRecipe.steps[i].ingredient} \n";
+                stepsText += $"<s>{currentRecipe.steps[i].verb} {currentRecipe.steps[i].ingredient}</s> \n";
             }
             else if (i > currentStep)
             {

@@ -10,10 +10,13 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a9257e1acc0ded840b8e4c728d3faafe, type: 3}
-  m_Name: Health Potion
+  m_Name: Mana Potion
   m_EditorClassIdentifier: 
   steps:
-  - verb: Grind
-    ingredient: Life Wheat
-    requiredTool: {fileID: 1663615941, guid: 1728b6567ad158748a5622b89ecb9226, type: 3}
-  reward: 25
+  - verb: Droplet
+    ingredient: Spirits
+    requiredTool: {fileID: 874164382354814093, guid: 00783e68ad165af4dacbf4c8e4796506, type: 3}
+  - verb: Channel
+    ingredient: Mana
+    requiredTool: {fileID: 1747427745, guid: c41a36ca006f8f04a9de2bb1e2987054, type: 3}
+  reward: 75

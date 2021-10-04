@@ -9,7 +9,7 @@ public class OrderGenerator
     public Recipe[] allRecipes;
 
     private Recipe[] craftableRecipes;
-    public Recipe GetOrder(Tool[] unlockedTools)
+    public Recipe GetOrder(List<Tool> unlockedTools)
     {
         craftableRecipes = allRecipes.Where((Recipe recipe) =>
         {

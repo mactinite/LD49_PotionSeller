@@ -19,7 +19,7 @@ public class GameManager : StateMachine<GameManager>
     public TMPro.TMP_Text dialogueText;
 
 
-    public Tool[] tools;
+    public List<Tool> tools;
     public Tool currentTool;
 
     public Transform customerSpawnLocation;
@@ -42,6 +42,8 @@ public class GameManager : StateMachine<GameManager>
     private int currentDay = 0;
     public TMPro.TMP_Text dayCounter;
 
+    public GameObject upgradeMenu;
+    public Button continueButton;
 
 
     private void Start()
@@ -60,7 +62,7 @@ public class GameManager : StateMachine<GameManager>
         this.SetState(new OpeningState(this));
     }
 
-    private void ToolDroppedOnWorkspace(Tool tool)
+    public void ToolDroppedOnWorkspace(Tool tool)
     {
         currentTool = tool;
     }
@@ -178,14 +180,14 @@ public class OpeningState : State<GameManager>
         yield return new WaitForSeconds(3f);
         FlybyText.SpawnText("Start Shift!");
         yield return new WaitForSeconds(3f);
-        StateMachine.ShopManager.Gold -= StateMachine.ShopManager.upkeepCost;
+        ShopManager.Gold -= StateMachine.ShopManager.upkeepCost;
 
-        if(StateMachine.ShopManager.Gold < 0)
+        if(ShopManager.Gold < 0)
         {
             // BANKRUPT GAME OVER
             FlybyText.SpawnText("BANKRUPT!");
             StateMachine.SetState(new GameOverState(StateMachine));
-
+            yield break;
         }
 
         StateMachine.CurrentDay++;
@@ -250,6 +252,7 @@ public class OpenState : State<GameManager>
 
 public class ClosingState : State<GameManager>
 {
+    bool upgrading = true;
     public ClosingState(GameManager stateMachine) : base(stateMachine)
     {
     }
@@ -272,9 +275,24 @@ public class ClosingState : State<GameManager>
         FlybyText.SpawnText("Zzzzz");
         yield return new WaitForSeconds(3f);
 
-        StateMachine.SetState(new OpeningState(StateMachine));
         // TODO: UPGRADES
-        // while(upgrading){}
+
+        upgrading = true;
+        StateMachine.upgradeMenu.gameObject.SetActive(true);
+        StateMachine.continueButton.onClick.AddListener(ContinueClicked);
+        while (upgrading)
+        {
+            yield return null;
+        }
+
+        StateMachine.upgradeMenu.gameObject.SetActive(false);
+        StateMachine.continueButton.onClick.RemoveListener(ContinueClicked);
+        StateMachine.SetState(new OpeningState(StateMachine));
+    }
+
+    private void ContinueClicked()
+    {
+        upgrading = false;
     }
 }
 

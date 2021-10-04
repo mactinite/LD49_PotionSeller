@@ -12,7 +12,7 @@ public class MouseInteraction : SingletonMonobehavior<MouseInteraction>
     public UnityEvent<GameObject> OnClick = new UnityEvent<GameObject>();
     public UnityEvent OnRelease = new UnityEvent();
     public Vector2 mouseWorldPosition;
-    
+    public static GameObject hovering;
 
     bool mouseDown = false;
     Mouse mouse;
@@ -27,10 +27,19 @@ public class MouseInteraction : SingletonMonobehavior<MouseInteraction>
     void Update()
     {
         mouseWorldPosition = cameraComponent.ScreenToWorldPoint(mouse.position.ReadValue());
+        Vector3 origin = cameraComponent.ScreenToWorldPoint(mouse.position.ReadValue());
+        RaycastHit2D hit = Physics2D.Raycast(origin, transform.forward, 20f);
+
+        if (hit)
+        {
+            hovering = hit.transform.gameObject;
+        } else
+        {
+            hovering = null;
+        }
+
         if (mouse.leftButton.IsActuated())
         { // if left button pressed...
-            Vector3 origin = cameraComponent.ScreenToWorldPoint(mouse.position.ReadValue());
-            RaycastHit2D hit = Physics2D.Raycast(origin, transform.forward, 20f);
             if (hit)
             {
                 // the object identified by hit.transform was clicked
