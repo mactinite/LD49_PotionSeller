@@ -19,4 +19,4 @@ MonoBehaviour:
   - verb: Grind
     ingredient: Rose Petals
     requiredTool: {fileID: 1663615941, guid: 1728b6567ad158748a5622b89ecb9226, type: 3}
-  reward: 50
+  reward: 100

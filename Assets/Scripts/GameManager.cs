@@ -41,10 +41,12 @@ public class GameManager : StateMachine<GameManager>
 
     private int currentDay = 0;
     public TMPro.TMP_Text dayCounter;
-
+    public TMPro.TMP_Text shiftTimerText;
     public GameObject upgradeMenu;
     public Button continueButton;
 
+    public GameObject startMenu;
+    public Button startGameButton;
 
     private void Start()
     {
@@ -59,7 +61,7 @@ public class GameManager : StateMachine<GameManager>
         }
 
         //this.SetState(defaultState);
-        this.SetState(new OpeningState(this));
+        this.SetState(defaultState);
     }
 
     public void ToolDroppedOnWorkspace(Tool tool)
@@ -73,6 +75,10 @@ public class GameManager : StateMachine<GameManager>
         if (isOpen)
         {
             currentTime += Time.deltaTime;
+            shiftTimerText.text = String.Format("{0:N0}s", (shiftLength - CurrentTime));
+        } else
+        {
+            shiftTimerText.text = "";
         }
     }
 
@@ -136,8 +142,32 @@ public class GameManager : StateMachine<GameManager>
 
 public class DefaultState : State<GameManager>
 {
+
+    bool started = false;
     public DefaultState(GameManager stateMachine) : base(stateMachine)
     {
+    }
+
+    public override IEnumerator Start()
+    {
+        started = false;
+        StateMachine.startMenu.SetActive(true);
+        StateMachine.startGameButton.onClick.AddListener(OnStartGame);
+        SoundtrackManager.GoToSlowTrack();
+        ShopManager.Gold = 500;
+        while (!started)
+        {
+            //wait for player input
+            yield return null;
+        }
+
+        StateMachine.startMenu.SetActive(false);
+        StateMachine.startGameButton.onClick.RemoveListener(OnStartGame);
+        StateMachine.SetState(new OpeningState(StateMachine));
+    }
+
+    private void OnStartGame() {
+        started = true;
     }
 }
 
@@ -151,13 +181,16 @@ public class GameOverState : State<GameManager>
 
     public override IEnumerator Start()
     {
+        SoundtrackManager.GoToSlowTrack();
         yield return new WaitForSeconds(2f);
         FlybyText.SpawnText("Game Over");
 
         // show game over screen, 
         // offer to restart
         // show score & stats
-        yield return null;
+        yield return new WaitForSeconds(2f);
+
+        StateMachine.SetState(StateMachine.defaultState);
     }
 }
 
@@ -177,6 +210,7 @@ public class OpeningState : State<GameManager>
     public override IEnumerator Start()
     {
         FlybyText.SpawnText("Good Morning!");
+        SoundtrackManager.GoToFastTrack();
         yield return new WaitForSeconds(3f);
         FlybyText.SpawnText("Start Shift!");
         yield return new WaitForSeconds(3f);
@@ -213,9 +247,8 @@ public class OpenState : State<GameManager>
         StateMachine.isOpen = true;
         while (StateMachine.CurrentTime < StateMachine.shiftLength)
         {
-
             yield return NewCustomer();
-            yield return new WaitForSeconds(UnityEngine.Random.Range(5, 10));
+            yield return new WaitForSeconds(UnityEngine.Random.Range(3, 6));
         }
         // wait for potion in progress to be finished to be nice..
         while (StateMachine.ShopManager.isPreppingPotion)
@@ -265,18 +298,13 @@ public class ClosingState : State<GameManager>
 
     public override IEnumerator Start()
     {
+        StateMachine.isOpen = false;
         StateMachine.Orders.Clear();
         StateMachine.RedrawOrdersList();
-
-
+        SoundtrackManager.GoToSlowTrack();
         FlybyText.SpawnText("End Shift!");
         yield return new WaitForSeconds(3f);
-
-        FlybyText.SpawnText("Zzzzz");
-        yield return new WaitForSeconds(3f);
-
         // TODO: UPGRADES
-
         upgrading = true;
         StateMachine.upgradeMenu.gameObject.SetActive(true);
         StateMachine.continueButton.onClick.AddListener(ContinueClicked);
@@ -287,6 +315,9 @@ public class ClosingState : State<GameManager>
 
         StateMachine.upgradeMenu.gameObject.SetActive(false);
         StateMachine.continueButton.onClick.RemoveListener(ContinueClicked);
+        FlybyText.SpawnText("Zzzzz");
+        yield return new WaitForSeconds(3f);
+
         StateMachine.SetState(new OpeningState(StateMachine));
     }
 

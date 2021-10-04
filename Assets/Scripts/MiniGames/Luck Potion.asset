@@ -16,4 +16,4 @@ MonoBehaviour:
   - verb: Boil
     ingredient: Pyrite
     requiredTool: {fileID: 1452708620793240326, guid: 2e35a01f65978fb4b91a2c90fbb1fe07, type: 3}
-  reward: 50
+  reward: 75

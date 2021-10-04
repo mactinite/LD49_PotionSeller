@@ -19,4 +19,4 @@ MonoBehaviour:
   - verb: Channel
     ingredient: Mana
     requiredTool: {fileID: 1747427745, guid: c41a36ca006f8f04a9de2bb1e2987054, type: 3}
-  reward: 75
+  reward: 125

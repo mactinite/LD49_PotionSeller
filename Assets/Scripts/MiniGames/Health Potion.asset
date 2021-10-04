@@ -16,4 +16,4 @@ MonoBehaviour:
   - verb: Grind
     ingredient: Life Wheat
     requiredTool: {fileID: 1663615941, guid: 1728b6567ad158748a5622b89ecb9226, type: 3}
-  reward: 25
+  reward: 50

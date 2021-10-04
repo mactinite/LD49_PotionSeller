@@ -54,7 +54,9 @@ public class Dropper : MiniGame
             {
                 if (currentDropRadius > targetDropRadius + maxDeviation)
                 {
+                    goalCircle.lineRenderer.endColor = Color.red;
                     goalCircle.lineRenderer.startColor = Color.red;
+
                     statusText.text = "Ruined..";
                     statusText.color = Color.red;
                     OnFail.Invoke();
@@ -62,6 +64,8 @@ public class Dropper : MiniGame
                 else if (currentDropRadius < targetDropRadius - maxDeviation)
                 {
                     goalCircle.lineRenderer.startColor = Color.red;
+                    goalCircle.lineRenderer.endColor = Color.red;
+
                     statusText.text = "Ruined..";
                     statusText.color = Color.red;
                     OnFail.Invoke();

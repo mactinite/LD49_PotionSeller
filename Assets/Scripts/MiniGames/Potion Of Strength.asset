@@ -19,4 +19,4 @@ MonoBehaviour:
   - verb: Droplet
     ingredient: Flax Oil
     requiredTool: {fileID: 874164382354814093, guid: 00783e68ad165af4dacbf4c8e4796506, type: 3}
-  reward: 75
+  reward: 125
